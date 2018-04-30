@@ -16,7 +16,23 @@ module LanguagePack::Installers::RubyInstaller
 
   def install(ruby_version, install_dir)
     fetch_unpack(ruby_version, install_dir)
+    upgrade_rubygems(install_dir)
     setup_binstubs(install_dir)
+  end
+
+  def upgrade_rubygems(install_dir)
+    topic 'Using Rubygems version ' +
+          run_stdout("#{install_dir}/bin/gem --version")
+
+    up_to_date = run_stdout(
+      "#{install_dir}/bin/ruby -e 'puts Gem.respond_to?(:activate_bin_path)'"
+    ).strip
+    return if up_to_date == 'true'
+
+    topic 'Upgrading Rubygems...'
+    run("#{install_dir}/bin/gem update --system")
+    topic 'Using Rubygems version ' +
+          run_stdout("#{install_dir}/bin/gem --version")
   end
 
   def setup_binstubs(install_dir)
