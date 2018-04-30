@@ -8,4 +8,12 @@ BUILDPACK_DIR=$(dirname $BIN_DIR)
 source "$BIN_DIR/support/bash_functions.sh"
 heroku_buildpack_ruby_install_ruby "$BIN_DIR" "$BUILDPACK_DIR"
 
-$heroku_buildpack_ruby_dir/bin/ruby $BIN_DIR/support/ruby_compile $@
+bindir="$heroku_buildpack_ruby_dir/bin"
+up_to_date="$($bindir/ruby -e 'puts Gem.respond_to?(:activate_bin_path)')"
+
+if [ "$up_to_date" == "false" ]; then
+  echo "Upgrading Rubygems..."
+  $heroku_buildpack_ruby_dir/bin/gem update --system
+fi
+
+$bindir/ruby $BIN_DIR/support/ruby_compile $@
