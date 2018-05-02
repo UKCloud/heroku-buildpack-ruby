@@ -34,8 +34,6 @@ module LanguagePack
     def fetch_untar(path, files_to_extract = nil)
       path = path[1..-1] if path[0] == '/'
       curl = curl_command("#{@host_url.join(path)} -s -o")
-      STDOUT.puts 'DEBUG: TARGET: ' + run('echo $TARGET')
-      STDOUT.puts "DEBUG: #{curl}"
       run! "#{curl} - | tar zxf - #{files_to_extract}",
            error_class: FetchError,
            max_attempts: 3
@@ -57,6 +55,7 @@ module LanguagePack
 
         binary = override_vendor_url.join(v)
         command = ([binary] + rest).join(' ')
+        topic "Downloading #{filename} from: #{binary}"
         return "set -o pipefail; curl -L --fail --retry 5 --retry-delay 1 --connect-timeout #{curl_connect_timeout_in_seconds} --max-time #{curl_timeout_in_seconds} #{command}"
       end
 
@@ -67,10 +66,12 @@ module LanguagePack
       }
       buildcurl_mapping.each do |k, v|
         if File.basename(binary, '.tgz') =~ v
+          topic "Downloading #{File.basename(binary)} from: buildcurl.com"
           return "set -o pipefail; curl -L --get --fail --retry 3 #{buildcurl_url} -d recipe=#{k} -d version=#{Regexp.last_match(1)} -d target=$TARGET #{rest.join(' ')}"
         end
       end
 
+      topic "Downloading #{File.basename(binary)} from: #{binary}"
       "set -o pipefail; curl -L --fail --retry 5 --retry-delay 1 --connect-timeout #{curl_connect_timeout_in_seconds} --max-time #{curl_timeout_in_seconds} #{command}"
     end
 
