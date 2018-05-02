@@ -1,12 +1,12 @@
-require "yaml"
-require "language_pack/shell_helpers"
+require 'yaml'
+require 'language_pack/shell_helpers'
 
 module LanguagePack
   class Fetcher
     class FetchError < StandardError; end
 
     include ShellHelpers
-    CDN_YAML_FILE = File.expand_path("../../../config/cdn.yml", __FILE__)
+    CDN_YAML_FILE = File.expand_path('../../config/cdn.yml', __dir__)
 
     def initialize(host_url, stack = nil)
       @config   = load_config
@@ -21,7 +21,9 @@ module LanguagePack
 
     def fetch_untar(path, files_to_extract = nil)
       curl = curl_command("#{@host_url.join(path)} -s -o")
-      run!("#{curl} - | tar zxf - #{files_to_extract}", error_class: FetchError)
+      run! "#{curl} - | tar zxf - #{files_to_extract}",
+           error_class: FetchError,
+           max_attempts: 3
     end
 
     def fetch_bunzip2(path, files_to_extract = nil)
@@ -30,23 +32,9 @@ module LanguagePack
     end
 
     private
-    def curl_command(command)
-      binary, *rest = command.split(" ")
-      buildcurl_mapping = {
-        "ruby" => /^ruby-(.+)$/,
-        "rubygem-bundler" => /^bundler-(.+)$/,
-        "libyaml" => /^libyaml-(.+)$/
-      }
-      buildcurl_mapping.each do |k,v|
-        if File.basename(binary, ".tgz") =~ v
-          return "set -o pipefail; curl -L --get --fail --retry 3 #{buildcurl_url} -d recipe=#{k} -d version=#{$1} -d target=$TARGET #{rest.join(" ")}"
-        end
-      end
-      "set -o pipefail; curl -L --fail --retry 5 --retry-delay 1 --connect-timeout #{curl_connect_timeout_in_seconds} --max-time #{curl_timeout_in_seconds} #{command}"
-    end
 
-    def buildcurl_url
-      ENV['BUILDCURL_URL'] || "buildcurl.com"
+    def curl_command(command)
+      "set -o pipefail; curl -L --fail --retry 5 --retry-delay 1 --connect-timeout #{curl_connect_timeout_in_seconds} --max-time #{curl_timeout_in_seconds} #{command}"
     end
 
     def curl_timeout_in_seconds
