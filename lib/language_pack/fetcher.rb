@@ -8,17 +8,6 @@ module LanguagePack
     include ShellHelpers
     CDN_YAML_FILE = File.expand_path('../../../config/cdn.yml', __FILE__)
 
-    OVERRIDE_VENDOR_URL = 'https://github.com/jimeh/' \
-                          'heroku-buildpack-ruby-binaries/' \
-                          'raw/master'.freeze
-    OVERRIDE_VENDOR_MAPPING = {
-      'bundler-1.15.1.tgz' => 'bundler-1.15.1.tgz',
-      'libyaml-0.1.7.tgz' => 'libyaml-0.1.7.tgz',
-      'ruby-2.1.6.tgz' => 'ruby-2.1.6.tgz',
-      'ruby-2.3.0.tgz' => 'ruby-2.3.0.tgz',
-      'ruby-2.3.4.tgz' => 'ruby-2.3.4.tgz'
-    }.freeze
-
     def initialize(host_url, stack = nil)
       @config   = load_config
       @host_url = fetch_cdn(host_url)
@@ -49,8 +38,8 @@ module LanguagePack
     def curl_command(command)
       url, *tail = command.split(' ')
 
-      vendor_override_url = vendor_override(url, tail)
-      return vendor_override_url if vendor_override_url
+      override_url = vendor_override(url, tail)
+      return override_url if override_url
 
       buildcurl_url = buildcurl_override(url, tail)
       return buildcurl_url if buildcurl_url
@@ -62,19 +51,56 @@ module LanguagePack
     end
 
     def vendor_override(url, tail)
-      STDOUT.puts "DEBUG: TARGET: #{ENV['TARGET']}"
-
-      OVERRIDE_VENDOR_MAPPING.each do |k, v|
+      vendor_override_mappings.each do |mapping|
         filename = File.basename(url)
-        next unless filename.match(k)
 
-        url = override_vendor_url.join(v)
+        next if mapping[:name] != filename
+        next if mapping[:os] && mapping[:os] != target_os
+
+        url = vendor_override_url.join(mapping[:to])
         command = ([url] + tail).join(' ')
-        topic "Downloading #{filename} from: #{url}"
+        topic "downloading #{filename} from: #{url}"
         return 'set -o pipefail; curl -L --fail --retry 5 --retry-delay 1 ' \
                "--connect-timeout #{curl_connect_timeout_in_seconds} " \
                "--max-time #{curl_timeout_in_seconds} #{command}"
       end
+      nil
+    end
+
+    def vendor_override_mappings
+      [
+        {
+          name: 'bundler-1.15.1.tgz',
+          to: 'bundler-1.15.1.tgz'
+        },
+        {
+          name: 'libyaml-0.1.7.tgz',
+          os: 'el:7 ',
+          to: 'libyaml-0.1.7.el-7.tgz'
+        },
+        {
+          name: 'ruby-2.1.6.tgz',
+          os: 'el:7',
+          to: 'ruby-2.1.6.el-7.tgz'
+        },
+        {
+          name: 'ruby-2.3.0.tgz',
+          os: 'el:7',
+          to: 'ruby-2.3.0.el-7.tgz'
+        },
+        {
+          name: 'ruby-2.3.4.tgz',
+          os: 'el:7',
+          to: 'ruby-2.3.4.el-7.tgz'
+        }
+      ]
+    end
+
+    def vendor_override_url
+      @vendor_override_url ||= Pathname.new(
+        ENV['VENDOR_OVERRIDE_URL'] ||
+          'https://github.com/jimeh/heroku-buildpack-ruby-binaries/raw/master'
+      )
     end
 
     def buildcurl_override(url, tail)
@@ -93,16 +119,15 @@ module LanguagePack
                "-d version=#{Regexp.last_match(1)} " \
                "-d target=$TARGET #{tail.join(' ')}"
       end
+      nil
     end
 
     def buildcurl_url
       ENV['BUILDCURL_URL'] || 'buildcurl.com'
     end
 
-    def override_vendor_url
-      @override_vendor_url ||= Pathname.new(
-        ENV['OVERRIDE_VENDOR_URL'] || OVERRIDE_VENDOR_URL
-      )
+    def target_os
+      @target_os ||= ENV['TARGET'].to_s
     end
 
     def curl_timeout_in_seconds
