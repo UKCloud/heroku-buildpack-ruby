@@ -514,7 +514,9 @@ ERROR
     instrument 'ruby.install_libyaml' do
       FileUtils.mkdir_p dir
       Dir.chdir(dir) do
-        @fetchers[:buildpack].fetch_untar("#{@stack}/#{LIBYAML_PATH}.tgz")
+        @fetchers[:buildpack].fetch_untar(
+          [@stack, "#{LIBYAML_PATH}.tgz"].join('/')
+        )
       end
     end
   end

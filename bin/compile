@@ -12,8 +12,8 @@ bindir="$heroku_buildpack_ruby_dir/bin"
 up_to_date="$($bindir/ruby -e 'puts Gem.respond_to?(:activate_bin_path)')"
 
 if [ "$up_to_date" == "false" ]; then
-  echo "Upgrading Rubygems..."
-  $heroku_buildpack_ruby_dir/bin/gem update --system
+  echo "-----> Upgrading Rubygems..."
+  $heroku_buildpack_ruby_dir/bin/gem update --system &>/dev/null
 fi
 
 $bindir/ruby $BIN_DIR/support/ruby_compile $@
