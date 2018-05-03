@@ -6,7 +6,7 @@ module LanguagePack
     class FetchError < StandardError; end
 
     include ShellHelpers
-    CDN_YAML_FILE = File.expand_path('../../config/cdn.yml', __dir__)
+    CDN_YAML_FILE = File.expand_path('../../../config/cdn.yml', __FILE__)
 
     OVERRIDE_VENDOR_URL = 'https://github.com/jimeh/' \
                           'heroku-buildpack-ruby-binaries/' \
