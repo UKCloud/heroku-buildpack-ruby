@@ -47,32 +47,52 @@ module LanguagePack
     private
 
     def curl_command(command)
-      binary, *rest = command.split(' ')
+      url, *tail = command.split(' ')
+
+      vendor_override_url = vendor_override(url, tail)
+      return vendor_override_url if vendor_override_url
+
+      buildcurl_url = buildcurl_override(url, tail)
+      return buildcurl_url if buildcurl_url
+
+      topic "Downloading #{File.basename(url)} from: #{url}"
+      'set -o pipefail; curl -L --fail --retry 5 --retry-delay 1 ' \
+      "--connect-timeout #{curl_connect_timeout_in_seconds} " \
+      "--max-time #{curl_timeout_in_seconds} #{command}"
+    end
+
+    def vendor_override(url, tail)
+      STDOUT.puts "DEBUG: TARGET: #{ENV['TARGET']}"
 
       OVERRIDE_VENDOR_MAPPING.each do |k, v|
-        filename = File.basename(binary)
+        filename = File.basename(url)
         next unless filename.match(k)
 
-        binary = override_vendor_url.join(v)
-        command = ([binary] + rest).join(' ')
-        topic "Downloading #{filename} from: #{binary}"
-        return "set -o pipefail; curl -L --fail --retry 5 --retry-delay 1 --connect-timeout #{curl_connect_timeout_in_seconds} --max-time #{curl_timeout_in_seconds} #{command}"
+        url = override_vendor_url.join(v)
+        command = ([url] + tail).join(' ')
+        topic "Downloading #{filename} from: #{url}"
+        return 'set -o pipefail; curl -L --fail --retry 5 --retry-delay 1 ' \
+               "--connect-timeout #{curl_connect_timeout_in_seconds} " \
+               "--max-time #{curl_timeout_in_seconds} #{command}"
       end
+    end
 
+    def buildcurl_override(url, tail)
       buildcurl_mapping = {
         'ruby' => /^ruby-(.+)$/,
         'rubygem-bundler' => /^bundler-(.+)$/,
         'libyaml' => /^libyaml-(.+)$/
       }
-      buildcurl_mapping.each do |k, v|
-        if File.basename(binary, '.tgz') =~ v
-          topic "Downloading #{File.basename(binary)} from: buildcurl.com"
-          return "set -o pipefail; curl -L --get --fail --retry 3 #{buildcurl_url} -d recipe=#{k} -d version=#{Regexp.last_match(1)} -d target=$TARGET #{rest.join(' ')}"
-        end
-      end
 
-      topic "Downloading #{File.basename(binary)} from: #{binary}"
-      "set -o pipefail; curl -L --fail --retry 5 --retry-delay 1 --connect-timeout #{curl_connect_timeout_in_seconds} --max-time #{curl_timeout_in_seconds} #{command}"
+      buildcurl_mapping.each do |k, v|
+        next unless File.basename(url, '.tgz') =~ v
+        topic "Downloading #{File.basename(url)} from: buildcurl.com"
+        return 'set -o pipefail; curl -L --get --fail --retry 3 ' \
+               "#{buildcurl_url} " \
+               "-d recipe=#{k} " \
+               "-d version=#{Regexp.last_match(1)} " \
+               "-d target=$TARGET #{tail.join(' ')}"
+      end
     end
 
     def buildcurl_url
