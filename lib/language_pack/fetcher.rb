@@ -75,23 +75,43 @@ module LanguagePack
         },
         {
           name: 'libyaml-0.1.7.tgz',
-          os: 'el:7 ',
-          to: 'libyaml-0.1.7.el-7.tgz'
+          os: 'el:7',
+          to: 'el-7/libyaml-0.1.7.tgz'
+        },
+        {
+          name: 'libyaml-0.1.7.tgz',
+          os: 'ubuntu:12.04',
+          to: 'ubuntu-12.04/libyaml-0.1.7.tgz'
         },
         {
           name: 'ruby-2.1.6.tgz',
           os: 'el:7',
-          to: 'ruby-2.1.6.el-7.tgz'
+          to: 'el-7/ruby-2.1.6.tgz'
+        },
+        {
+          name: 'ruby-2.1.6.tgz',
+          os: 'ubuntu:12.04',
+          to: 'ubuntu-12.04/ruby-2.1.6.tgz'
         },
         {
           name: 'ruby-2.3.0.tgz',
           os: 'el:7',
-          to: 'ruby-2.3.0.el-7.tgz'
+          to: 'el-7/ruby-2.3.0.tgz'
+        },
+        {
+          name: 'ruby-2.3.0.tgz',
+          os: 'ubuntu:12.04',
+          to: 'ubuntu-12.04/ruby-2.3.0.tgz'
         },
         {
           name: 'ruby-2.3.4.tgz',
           os: 'el:7',
-          to: 'ruby-2.3.4.el-7.tgz'
+          to: 'el-7/ruby-2.3.4.tgz'
+        },
+        {
+          name: 'ruby-2.3.4.tgz',
+          os: 'ubuntu:12.04',
+          to: 'ubuntu-12.04/ruby-2.3.4.tgz'
         }
       ]
     end
