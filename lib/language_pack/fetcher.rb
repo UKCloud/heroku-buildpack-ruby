@@ -54,8 +54,8 @@ module LanguagePack
       vendor_override_mappings.each do |mapping|
         filename = File.basename(url)
 
-        next if mapping[:name] != filename
-        next if mapping[:os] && mapping[:os] != target_os
+        next unless filename.match(mapping[:name])
+        next if mapping[:os] && !target_os.match(mapping[:os])
 
         url = vendor_override_url.join(mapping[:to])
         command = ([url] + tail).join(' ')
