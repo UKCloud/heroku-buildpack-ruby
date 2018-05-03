@@ -8,6 +8,56 @@ module LanguagePack
     include ShellHelpers
     CDN_YAML_FILE = File.expand_path('../../../config/cdn.yml', __FILE__)
 
+    VENDOR_OVERRIDE_URL = ENV['VENDOR_OVERRIDE_URL'] ||
+      'https://github.com/jimeh/heroku-buildpack-ruby-binaries/raw/master'
+
+    VENDOR_OVERRIDE_MAPPINGS = [
+      {
+        name: 'bundler-1.15.1.tgz',
+        to: 'bundler-1.15.1.tgz'
+      },
+      {
+        name: 'libyaml-0.1.7.tgz',
+        os: 'el:7',
+        to: 'el-7/libyaml-0.1.7.tgz'
+      },
+      {
+        name: 'libyaml-0.1.7.tgz',
+        os: 'ubuntu:12.04',
+        to: 'ubuntu-12.04/libyaml-0.1.7.tgz'
+      },
+      {
+        name: 'ruby-2.1.6.tgz',
+        os: 'el:7',
+        to: 'el-7/ruby-2.1.6.tgz'
+      },
+      {
+        name: 'ruby-2.1.6.tgz',
+        os: 'ubuntu:12.04',
+        to: 'ubuntu-12.04/ruby-2.1.6.tgz'
+      },
+      {
+        name: 'ruby-2.3.0.tgz',
+        os: 'el:7',
+        to: 'el-7/ruby-2.3.0.tgz'
+      },
+      {
+        name: 'ruby-2.3.0.tgz',
+        os: 'ubuntu:12.04',
+        to: 'ubuntu-12.04/ruby-2.3.0.tgz'
+      },
+      {
+        name: 'ruby-2.3.4.tgz',
+        os: 'el:7',
+        to: 'el-7/ruby-2.3.4.tgz'
+      },
+      {
+        name: 'ruby-2.3.4.tgz',
+        os: 'ubuntu:12.04',
+        to: 'ubuntu-12.04/ruby-2.3.4.tgz'
+      }
+    ]
+
     def initialize(host_url, stack = nil)
       @config   = load_config
       @host_url = fetch_cdn(host_url)
@@ -51,7 +101,7 @@ module LanguagePack
     end
 
     def vendor_override(url, tail)
-      vendor_override_mappings.each do |mapping|
+      VENDOR_OVERRIDE_MAPPINGS.each do |mapping|
         filename = File.basename(url)
 
         next unless filename.match(mapping[:name])
@@ -67,60 +117,8 @@ module LanguagePack
       nil
     end
 
-    def vendor_override_mappings
-      [
-        {
-          name: 'bundler-1.15.1.tgz',
-          to: 'bundler-1.15.1.tgz'
-        },
-        {
-          name: 'libyaml-0.1.7.tgz',
-          os: 'el:7',
-          to: 'el-7/libyaml-0.1.7.tgz'
-        },
-        {
-          name: 'libyaml-0.1.7.tgz',
-          os: 'ubuntu:12.04',
-          to: 'ubuntu-12.04/libyaml-0.1.7.tgz'
-        },
-        {
-          name: 'ruby-2.1.6.tgz',
-          os: 'el:7',
-          to: 'el-7/ruby-2.1.6.tgz'
-        },
-        {
-          name: 'ruby-2.1.6.tgz',
-          os: 'ubuntu:12.04',
-          to: 'ubuntu-12.04/ruby-2.1.6.tgz'
-        },
-        {
-          name: 'ruby-2.3.0.tgz',
-          os: 'el:7',
-          to: 'el-7/ruby-2.3.0.tgz'
-        },
-        {
-          name: 'ruby-2.3.0.tgz',
-          os: 'ubuntu:12.04',
-          to: 'ubuntu-12.04/ruby-2.3.0.tgz'
-        },
-        {
-          name: 'ruby-2.3.4.tgz',
-          os: 'el:7',
-          to: 'el-7/ruby-2.3.4.tgz'
-        },
-        {
-          name: 'ruby-2.3.4.tgz',
-          os: 'ubuntu:12.04',
-          to: 'ubuntu-12.04/ruby-2.3.4.tgz'
-        }
-      ]
-    end
-
     def vendor_override_url
-      @vendor_override_url ||= Pathname.new(
-        ENV['VENDOR_OVERRIDE_URL'] ||
-          'https://github.com/jimeh/heroku-buildpack-ruby-binaries/raw/master'
-      )
+      @vendor_override_url ||= Pathname.new(VENDOR_OVERRIDE_URL)
     end
 
     def buildcurl_override(url, tail)
