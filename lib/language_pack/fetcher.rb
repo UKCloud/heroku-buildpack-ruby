@@ -33,6 +33,10 @@ module LanguagePack
         to: 'ubuntu-12.04/libyaml-0.1.7.tgz'
       },
       {
+        name: 'node-v6.10.0-linux-x64.tar.gz',
+        to: 'linux-x64/node-v6.10.0-linux-x64.tar.gz'
+      },
+      {
         name: 'ruby-2.1.6.tgz',
         os: 'el:7',
         to: 'el-7/ruby-2.1.6.tgz'
