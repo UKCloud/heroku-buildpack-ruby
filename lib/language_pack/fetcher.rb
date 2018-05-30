@@ -14,7 +14,13 @@ module LanguagePack
     VENDOR_OVERRIDE_MAPPINGS = [
       {
         name: 'bundler-1.15.1.tgz',
-        to: 'bundler-1.15.1.tgz'
+        os: 'el:7',
+        to: 'el-7/bundler-1.15.1.tgz'
+      },
+      {
+        name: 'bundler-1.15.1.tgz',
+        os: 'ubuntu:12.04',
+        to: 'ubuntu-12.04/bundler-1.15.1.tgz'
       },
       {
         name: 'libyaml-0.1.7.tgz',
