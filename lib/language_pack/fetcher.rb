@@ -61,6 +61,16 @@ module LanguagePack
         name: 'ruby-2.3.4.tgz',
         os: 'ubuntu:12.04',
         to: 'ubuntu-12.04/ruby-2.3.4.tgz'
+      },
+      {
+        name: 'ruby-2.5.1.tgz',
+        os: 'el:7',
+        to: 'el-7/ruby-2.5.1.tgz'
+      },
+      {
+        name: 'ruby-2.5.1.tgz',
+        os: 'ubuntu:12.04',
+        to: 'ubuntu-12.04/ruby-2.5.1.tgz'
       }
     ]
 
