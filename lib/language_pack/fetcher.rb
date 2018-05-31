@@ -14,7 +14,13 @@ module LanguagePack
     VENDOR_OVERRIDE_MAPPINGS = [
       {
         name: 'bundler-1.15.1.tgz',
-        to: 'bundler-1.15.1.tgz'
+        os: 'el:7',
+        to: 'el-7/bundler-1.15.1.tgz'
+      },
+      {
+        name: 'bundler-1.15.1.tgz',
+        os: 'ubuntu:12.04',
+        to: 'ubuntu-12.04/bundler-1.15.1.tgz'
       },
       {
         name: 'libyaml-0.1.7.tgz',
@@ -25,6 +31,10 @@ module LanguagePack
         name: 'libyaml-0.1.7.tgz',
         os: 'ubuntu:12.04',
         to: 'ubuntu-12.04/libyaml-0.1.7.tgz'
+      },
+      {
+        name: 'node-v6.10.0-linux-x64.tar.gz',
+        to: 'linux-x64/node-v6.10.0-linux-x64.tar.gz'
       },
       {
         name: 'ruby-2.1.6.tgz',
@@ -55,6 +65,16 @@ module LanguagePack
         name: 'ruby-2.3.4.tgz',
         os: 'ubuntu:12.04',
         to: 'ubuntu-12.04/ruby-2.3.4.tgz'
+      },
+      {
+        name: 'ruby-2.5.1.tgz',
+        os: 'el:7',
+        to: 'el-7/ruby-2.5.1.tgz'
+      },
+      {
+        name: 'ruby-2.5.1.tgz',
+        os: 'ubuntu:12.04',
+        to: 'ubuntu-12.04/ruby-2.5.1.tgz'
       }
     ]
 
